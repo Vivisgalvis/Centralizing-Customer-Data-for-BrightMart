@@ -25,6 +25,8 @@
 	</flow>
 	<!-- 1) POST /accounts -->
 	<flow name="post:\accounts:application\json:salesforce-system-api-config">
+    
+    <!-- Log del request -->
     <logger level="INFO" doc:name="Log request" message="POST /accounts payload: #[payload]" />
 
     <!-- Guardar el externalId en variable -->
@@ -47,6 +49,8 @@ output application/java
         </ee:message>
     </ee:transform>
 
+    <logger level="INFO" doc:name="Log mapped SF payload" message="#[payload]" />
+
     <!-- Upsert en Salesforce -->
     <salesforce:upsert 
         config-ref="Salesforce_Config"
@@ -54,18 +58,35 @@ output application/java
         externalIdFieldName="${salesforce.externalIdField}"
         doc:name="SF Upsert Account"/>
 
-<logger level="INFO" doc:name="Log SF Upsert Result" message="Upsert result: #[payload]" />
+    <!-- Transformar el resultado del Upsert -->
+    <ee:transform doc:name="Transform Upsert Response">
+        <ee:message>
+            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.items map (item) -> {
+    id: item.id,
+    success: item.success,
+    errors: item.errors
+}]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
+
+    <logger level="INFO" doc:name="Log Upsert Result" message="Upsert response: #[payload]" />
+
+    <!-- Log del externalId -->
+    <logger level="INFO" message="Valor de externalId: #[vars.externalId]" />
 
     <!-- Query usando parámetros -->
-<salesforce:query config-ref="Salesforce_Config" doc:name="Query SF by external id">
-    <salesforce:salesforce-query><![CDATA[
-        SELECT Id, Name, External_Id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
-        FROM Account
-        WHERE External_Id__c = :externalId
-        LIMIT 1
-    ]]></salesforce:salesforce-query>
-    <salesforce:parameters><![CDATA[#[{ externalId: vars.externalId as String }]]]></salesforce:parameters>
-</salesforce:query>
+    <salesforce:query config-ref="Salesforce_Config" doc:name="Query SF by external id">
+        <salesforce:salesforce-query><![CDATA[
+            SELECT Id, Name, External_Id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
+            FROM Account
+            WHERE External_Id__c = :externalId
+            LIMIT 1
+        ]]></salesforce:salesforce-query>
+        <salesforce:parameters>#[{ externalId: "'" ++ vars.externalId ++ "'" }]</salesforce:parameters>
+    </salesforce:query>
 
     <!-- Transformar la respuesta a JSON -->
     <ee:transform doc:name="SF -> Normalized JSON Response">
@@ -93,6 +114,7 @@ else
 ]]></ee:set-payload>
         </ee:message>
     </ee:transform>
+
 </flow>
 	<!-- 2) PUT /accounts/{id} -->
 	<flow

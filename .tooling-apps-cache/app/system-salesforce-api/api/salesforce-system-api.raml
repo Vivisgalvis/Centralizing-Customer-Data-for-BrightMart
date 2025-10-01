@@ -1,0 +1,85 @@
+#%RAML 1.0
+title: Salesforce System Api
+version: v1
+baseUri: /api/accounts
+mediaType: application/json
+
+types:
+  AccountIn:
+    type: object
+    properties:
+      externalId: string
+      firstName: string
+      lastName: string
+      email?: string
+      phone?: string
+      birthDate?: date-only
+      city?: string
+      state?: string
+      country?: string
+    example:
+      externalId: "CUST-001"
+      firstName: "Ana"
+      lastName: "Gómez"
+      email: "ana.gomez@example.com"
+      phone: "+573001234567"
+      birthDate: 1990-05-01
+      city: "Bogotá"
+      state: "Cundinamarca"
+      country: "Colombia"
+
+  AccountOut:
+    type: object
+    properties:
+      id: string
+      externalId: string
+      salesforceId: string
+      status: string
+    example:
+      id: "1"
+      externalId: "CUST-001"
+      salesforceId: "001xx000003DGX1AAO"
+      status: "synced"
+
+resourceTypes:
+  collection:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: AccountOut[]
+    post:
+      body:
+        application/json:
+          type: AccountIn
+      responses:
+        201:
+          body:
+            application/json:
+              type: AccountOut
+
+/accounts:
+  type: collection
+  get:
+    description: Get all Accounts from Salesforce
+  post:
+    description: Create/Upsert an Account in Salesforce
+/accounts/{id}:
+  get:
+    description: Get Account by Salesforce Id
+    responses:
+      200:
+        body:
+          application/json:
+            type: AccountOut
+  put:
+    description: Update Account in Salesforce
+    body:
+      application/json:
+        type: AccountIn
+    responses:
+      200:
+        body:
+          application/json:
+            type: AccountOut

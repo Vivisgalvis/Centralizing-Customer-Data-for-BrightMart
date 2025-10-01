@@ -1,0 +1,8 @@
+{
+  "minMuleVersion": "4.9.0",
+  "javaSpecificationVersions": [
+    "17"
+  ],
+  "configs": ["properties/dev-config.yaml"], 
+  "secureProperties": ["salesforce.username", "salesforce.password", "salesforce.securityToken"]
+}
