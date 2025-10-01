@@ -4,7 +4,7 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 
 <http:listener-config name="bd-system-api-httpListenerConfig">
-        <http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.timeout}"/>
+        <http:listener-connection host="0.0.0.0" port="8082" />
     </http:listener-config>
     <apikit:config name="bd-system-api-config" api="bd-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
 	<configuration-properties doc:name="Configuration properties" doc:id="af289428-b936-40ae-af69-93ff0f6e67fc" file="properties/${mule.env}-config.yaml" />
