@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/CustomerDBOut",
+  "definitions": {
+    "CustomerDBOut": {
+      "type": "object",
+      "example": {
+        "id": "2",
+        "externalId": "CUST-002",
+        "salesforceId": "001xx000003DGX2AAO",
+        "syncStatus": "pending",
+        "createdAt": "2025-09-01T10:00:00Z",
+        "updatedAt": "2025-09-01T10:00:00Z"
+      },
+      "required": [
+        "id",
+        "externalId",
+        "syncStatus",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "salesforceId": {
+          "type": "string"
+        },
+        "syncStatus": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

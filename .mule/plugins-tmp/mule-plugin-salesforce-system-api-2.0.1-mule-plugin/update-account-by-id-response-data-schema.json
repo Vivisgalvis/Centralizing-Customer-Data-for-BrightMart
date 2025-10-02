@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/AccountOut",
+  "definitions": {
+    "AccountOut": {
+      "type": "object",
+      "example": {
+        "id": "1",
+        "externalId": "CUST-001",
+        "salesforceId": "001xx000003DGX1AAO",
+        "status": "synced"
+      },
+      "required": [
+        "id",
+        "externalId",
+        "salesforceId",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "salesforceId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

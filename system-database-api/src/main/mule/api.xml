@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
     <flow name="bd-system-api-main">
         <http:listener config-ref="bd-system-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -124,14 +121,14 @@ output application/json
     </flow>
     <flow name="get:\customers:bd-system-api-config">
         <db:select doc:name="Select" doc:id="efeda54b-f165-4236-9ef1-7f63895a7128" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT id, external_id, first_name, last_name, email, phone, birth_date, address,
+            <db:sql><![CDATA[SELECT id, external_id, first_name, last_name, email, phone, birth_date, address,
                    salesforce_id, created_at, updated_at
             FROM customers
             ORDER BY id]]></db:sql>
-		</db:select>
-		<ee:transform doc:name="Transform Customers to JSON">
-    <ee:message>
-        <ee:set-payload><![CDATA[%dw 2.0
+        </db:select>
+        <ee:transform doc:name="Transform Customers to JSON">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map (customer) -> {
@@ -147,32 +144,28 @@ payload map (customer) -> {
     createdAt: customer.created_at,
     updatedAt: customer.updated_at
 }]]></ee:set-payload>
-    </ee:message>
-</ee:transform>
+            </ee:message>
+        </ee:transform>
     </flow>
     <flow name="get:\customers\(id):bd-system-api-config">
         <!-- Extraer el id de la URL -->
-    <ee:transform doc:name="Extract ID">
-        <ee:variables>
-            <ee:set-variable variableName="id">#[attributes.uriParams.id as Number]</ee:set-variable>
-        </ee:variables>
-    </ee:transform>
-
-    <!-- Query a la BD -->
-    <db:select doc:name="Select Customer By ID" config-ref="Database_Config">
-        <db:sql><![CDATA[
-            SELECT id, external_id, first_name, last_name, email, phone, birth_date, address,
+        <ee:transform doc:name="Extract ID">
+            <ee:variables>
+                <ee:set-variable variableName="id">#[attributes.uriParams.id as Number]</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <!-- Query a la BD -->
+        <db:select doc:name="Select Customer By ID" config-ref="Database_Config">
+            <db:sql><![CDATA[SELECT id, external_id, first_name, last_name, email, phone, birth_date, address,
                    salesforce_id, created_at, updated_at
             FROM customers
-            WHERE id = :id
-        ]]></db:sql>
-        <db:input-parameters><![CDATA[#[{ id: vars.id }]]]></db:input-parameters>
-    </db:select>
-
-    <!-- Transformar a JSON -->
-    <ee:transform doc:name="Transform To JSON">
-        <ee:message>
-            <ee:set-payload><![CDATA[%dw 2.0
+            WHERE id = :id]]></db:sql>
+            <db:input-parameters><![CDATA[#[{ id: vars.id }]]]></db:input-parameters>
+        </db:select>
+        <!-- Transformar a JSON -->
+        <ee:transform doc:name="Transform To JSON">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 if (isEmpty(payload)) 
@@ -190,26 +183,20 @@ else
         salesforceId: payload[0].salesforce_id,
         createdAt: payload[0].created_at,
         updatedAt: payload[0].updated_at
-    }
-]]></ee:set-payload>
-        </ee:message>
-    </ee:transform>
+    }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
     </flow>
     <flow name="post:\customers:application\json:bd-system-api-config">
-    	
-    	<ee:transform doc:name="Save Input">
-    <ee:variables>
-        <ee:set-variable variableName="customerInput"><![CDATA[#[payload]]]></ee:set-variable>
-    </ee:variables>
-</ee:transform>
-    	
-    
+        <ee:transform doc:name="Save Input">
+            <ee:variables>
+                <ee:set-variable variableName="customerInput"><![CDATA[#[payload]]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
         <db:insert config-ref="Database_Config">
-        <db:sql><![CDATA[
-            INSERT INTO customers (external_id, first_name, last_name, email, phone, birth_date, address, salesforce_id, created_at, updated_at)
-            VALUES (:externalId, :firstName, :lastName, :email, :phone, :birthDate, :address, :salesforceId, NOW(), NOW())
-        ]]></db:sql>
-        <db:input-parameters><![CDATA[#[{
+            <db:sql><![CDATA[INSERT INTO customers (external_id, first_name, last_name, email, phone, birth_date, address, salesforce_id, created_at, updated_at)
+            VALUES (:externalId, :firstName, :lastName, :email, :phone, :birthDate, :address, :salesforceId, NOW(), NOW())]]></db:sql>
+            <db:input-parameters><![CDATA[#[{
             externalId: payload.externalId,
             firstName: payload.firstName,
             lastName: payload.lastName,
@@ -219,11 +206,10 @@ else
             address: payload.address,
             salesforceId: payload.salesforceId
         }]]]></db:input-parameters>
-    </db:insert>
-
-<ee:transform doc:name="Response">
-    <ee:message>
-        <ee:set-payload><![CDATA[%dw 2.0
+        </db:insert>
+        <ee:transform doc:name="Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
         output application/json
         ---
         {
@@ -231,9 +217,7 @@ else
           email: vars.customerInput.email,
           externalId: vars.customerInput.externalId
         }]]></ee:set-payload>
-    </ee:message>
-</ee:transform>
-
-    
+            </ee:message>
+        </ee:transform>
     </flow>
 </mule>

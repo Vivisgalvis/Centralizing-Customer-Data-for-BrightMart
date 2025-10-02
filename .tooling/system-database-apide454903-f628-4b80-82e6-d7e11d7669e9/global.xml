@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+
+<http:listener-config name="bd-system-api-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.timeout}"/>
+    </http:listener-config>
+    <apikit:config name="bd-system-api-config" api="bd-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<configuration-properties doc:name="Configuration properties" doc:id="af289428-b936-40ae-af69-93ff0f6e67fc" file="properties/${mule.env}-config.yaml" />
+	<global-property doc:name="Global Property" doc:id="8abfa791-95ee-4910-b472-2efa3b581733" name="mule.env" value="dev" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="1c535ec7-35a7-4ba4-9aae-671beea43a12" >
+		<db:generic-connection url="${supabase.url}" driverClassName="${supabase.driver_class_name}" user="${supabase.username}" password="${supabase.password}" />
+	</db:config>
+
+</mule>

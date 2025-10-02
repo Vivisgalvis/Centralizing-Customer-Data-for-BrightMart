@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce-system-api="http://www.mulesoft.org/schema/mule/salesforce-system-api" xmlns:data-base-system-api="http://www.mulesoft.org/schema/mule/data-base-system-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/data-base-system-api http://www.mulesoft.org/schema/mule/data-base-system-api/current/mule-data-base-system-api.xsd
+http://www.mulesoft.org/schema/mule/salesforce-system-api http://www.mulesoft.org/schema/mule/salesforce-system-api/current/mule-salesforce-system-api.xsd">
+
+<http:listener-config name="process-api-brightmart-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="process-api-brightmart-config" api="resource::5b722ad4-d5d8-46fc-a309-f349cfc733e9:process-api-brightmart:1.0.0:raml:zip:process-api-brightmart.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<configuration-properties doc:name="Configuration properties" doc:id="de397f47-0fbb-42b0-b1b5-e7923ac3d9ff" file="properties/${mule.env}-config.yaml" />
+	<global-property doc:name="Global Property" doc:id="13990dd8-1a68-4648-a95c-b81b2328a581" name="mule.env" value="dev" />
+	<data-base-system-api:config name="Data_Base_System_Api_Config" doc:name="Data Base System Api Config" doc:id="81fabeea-7f9b-4970-8159-1903ed848392" property_host="${systembd.host}" property_port="${systembd.port}" property_protocol="${systembd.protocol}" property_responseTimeout="${systembd.timeout}" property_basePath="${systembd.basepath}"/>
+	<salesforce-system-api:config name="Salesforce_System_Api_Config" doc:name="Salesforce System Api Config" doc:id="a71775ce-e1eb-4494-8888-aabee8535a2f" property_host="${systemsf.host}"/>
+
+</mule>

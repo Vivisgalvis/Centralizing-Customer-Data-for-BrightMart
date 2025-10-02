@@ -1,41 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="       http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd       http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd       http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd       http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
-	<!-- Flujos de manejo de errores iniciales -->
-	<flow name="salesforce-system-api-main">
-		<http:listener
-			config-ref="salesforce-system-api-httpListenerConfig" path="/api/*">
-			<http:response
-				statusCode="#[vars.httpStatus default 200]">
-				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
-			</http:response>
-			<http:error-response
-				statusCode="#[vars.httpStatus default 500]">
-				<http:body>#[payload]</http:body>
-				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
-			</http:error-response>
-		</http:listener>
-		<apikit:router config-ref="salesforce-system-api-config" />
-	</flow>
-	<!-- 1) POST /accounts -->
-	<flow name="post:\accounts:application\json:salesforce-system-api-config">
-    
-    <!-- Log del request -->
-    <logger level="INFO" doc:name="Log request" message="POST /accounts payload: #[payload]" />
-
-    <!-- Guardar el externalId en variable -->
-    <set-variable variableName="externalId" value="#[payload.externalId default payload.id]" />
-
-    <!-- Mapear payload hacia Salesforce -->
-    <ee:transform doc:name="Map to SF payload">
-        <ee:message>
-            <ee:set-payload><![CDATA[%dw 2.0
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="       http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd       http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd       http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd       http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+    <!-- Flujos de manejo de errores iniciales -->
+    <flow name="salesforce-system-api-main">
+        <http:listener config-ref="salesforce-system-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="salesforce-system-api-config" />
+    </flow>
+    <!-- 1) POST /accounts -->
+    <flow name="post:\accounts:application\json:salesforce-system-api-config">
+        <!-- Log del request -->
+        <logger level="INFO" doc:name="Log request" message="POST /accounts payload: #[payload]" />
+        <!-- Guardar el externalId en variable -->
+        <set-variable variableName="externalId" value="#[payload.externalId default payload.id]" />
+        <!-- Mapear payload hacia Salesforce -->
+        <ee:transform doc:name="Map to SF payload">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 [{
@@ -46,22 +33,15 @@ output application/java
   BillingCountry: payload.address.country default null,
   External_Id__c: (payload.externalId default payload.id) as String
 }]]]></ee:set-payload>
-        </ee:message>
-    </ee:transform>
-
-    <logger level="INFO" doc:name="Log mapped SF payload" message="#[payload]" />
-
-    <!-- Upsert en Salesforce -->
-    <salesforce:upsert 
-        config-ref="Salesforce_Config"
-        objectType="Account"
-        externalIdFieldName="${salesforce.externalIdField}"
-        doc:name="SF Upsert Account"/>
-
-    <!-- Transformar el resultado del Upsert -->
-    <ee:transform doc:name="Transform Upsert Response">
-        <ee:message>
-            <ee:set-payload><![CDATA[%dw 2.0
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" doc:name="Log mapped SF payload" message="#[payload]" />
+        <!-- Upsert en Salesforce -->
+        <salesforce:upsert config-ref="Salesforce_Config" objectType="Account" externalIdFieldName="${salesforce.externalIdField}" doc:name="SF Upsert Account" />
+        <!-- Transformar el resultado del Upsert -->
+        <ee:transform doc:name="Transform Upsert Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload.items map (item) -> {
@@ -69,30 +49,23 @@ payload.items map (item) -> {
     success: item.success,
     errors: item.errors
 }]]></ee:set-payload>
-        </ee:message>
-    </ee:transform>
-
-    <logger level="INFO" doc:name="Log Upsert Result" message="Upsert response: #[payload]" />
-
-    <!-- Log del externalId -->
-    <logger level="INFO" message="Valor de externalId: #[vars.externalId]" />
-
-    <!-- Query usando parámetros -->
-    <salesforce:query config-ref="Salesforce_Config" doc:name="Query SF by external id">
-        <salesforce:salesforce-query><![CDATA[
-            SELECT Id, Name, External_Id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" doc:name="Log Upsert Result" message="Upsert response: #[payload]" />
+        <!-- Log del externalId -->
+        <logger level="INFO" message="Valor de externalId: #[vars.externalId]" />
+        <!-- Query usando parámetros -->
+        <salesforce:query config-ref="Salesforce_Config" doc:name="Query SF by external id">
+            <salesforce:salesforce-query><![CDATA[SELECT Id, Name, External_Id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
             FROM Account
             WHERE External_Id__c = :externalId
-            LIMIT 1
-        ]]></salesforce:salesforce-query>
-        <salesforce:parameters>#[{ externalId: "'" ++ vars.externalId ++ "'" }]</salesforce:parameters>
-    </salesforce:query>
-
-    <!-- Transformar la respuesta a JSON -->
-    <ee:transform doc:name="SF -> Normalized JSON Response">
-        <ee:message>
-            <ee:set-payload><![CDATA[
-%dw 2.0
+            LIMIT 1]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{ externalId: "'" ++ vars.externalId ++ "'" }]</salesforce:parameters>
+        </salesforce:query>
+        <!-- Transformar la respuesta a JSON -->
+        <ee:transform doc:name="SF -&gt; Normalized JSON Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 var r = payload.records[0] default null
 ---
@@ -110,29 +83,24 @@ else
     createdAt: r.CreatedDate,
     updatedAt: r.LastModifiedDate,
     sourceSystem: "salesforce"
-  }
-]]></ee:set-payload>
-        </ee:message>
-    </ee:transform>
-
-</flow>
-	<!-- 2) PUT /accounts/{id} -->
-	<flow
-		name="put:\accounts\(id):application\json:salesforce-system-api-config">
-		<logger level="INFO" doc:name="Log request"
-			message="PUT /accounts/#{attributes.uriParams.id} payload: #[payload]" />
-		<salesforce:query config-ref="Salesforce_Config"
-			doc:name="Query Existing Account">
-			<salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry
+  }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <!-- 2) PUT /accounts/{id} -->
+    <flow name="put:\accounts\(id):application\json:salesforce-system-api-config">
+        <logger level="INFO" doc:name="Log request" message="PUT /accounts/#{attributes.uriParams.id} payload: #[payload]" />
+        <salesforce:query config-ref="Salesforce_Config" doc:name="Query Existing Account">
+            <salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry
 FROM Account
 WHERE external_id__c = '#[attributes.uriParams.id]'
    OR Id = '#[attributes.uriParams.id]']]></salesforce:salesforce-query>
-		</salesforce:query>
-		<choice doc:name="Exists?">
-			<when expression="#[sizeOf(payload.records default []) &gt; 0]">
-				<ee:transform doc:name="Map update payload">
-					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
+        </salesforce:query>
+        <choice doc:name="Exists?">
+            <when expression="#[sizeOf(payload.records default []) &gt; 0]">
+                <ee:transform doc:name="Map update payload">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 {
@@ -144,46 +112,40 @@ output application/java
   BillingCountry : payload.address.country default null,
   External_Id__c : (payload.externalId default payload.id) as String
 }]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-				<salesforce:update config-ref="Salesforce_Config"
-					type="Account" doc:name="SF Update Account">
-					<salesforce:records><![CDATA[#[payload]]]></salesforce:records>
-				</salesforce:update>
-				<salesforce:query config-ref="Salesforce_Config"
-					doc:name="Query SF After Update">
-					<salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
+                    </ee:message>
+                </ee:transform>
+                <salesforce:update config-ref="Salesforce_Config" type="Account" doc:name="SF Update Account">
+                    <salesforce:records><![CDATA[#[payload]]]></salesforce:records>
+                </salesforce:update>
+                <salesforce:query config-ref="Salesforce_Config" doc:name="Query SF After Update">
+                    <salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
 FROM Account
 WHERE Id = '#[payload.Id]'
 LIMIT 1]]></salesforce:salesforce-query>
-				</salesforce:query>
-			</when>
-			<otherwise>
-				<set-payload
-					value="{&quot;error&quot;:&quot;Account not found with id: &quot; ++ attributes.uriParams.id}" />
-			</otherwise>
-		</choice>
-	</flow>
-	<!-- 3) GET /accounts -->
-	<flow name="get:\accounts:salesforce-system-api-config">
-		<set-variable variableName="limit"
-			value="#[(attributes.queryParams.limit default '50') as Number]" />
-		<salesforce:query config-ref="Salesforce_Config"
-			doc:name="Query Accounts">
-			<salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
+                </salesforce:query>
+            </when>
+            <otherwise>
+                <set-payload value="{&quot;error&quot;:&quot;Account not found with id: &quot; ++ attributes.uriParams.id}" />
+            </otherwise>
+        </choice>
+    </flow>
+    <!-- 3) GET /accounts -->
+    <flow name="get:\accounts:salesforce-system-api-config">
+        <set-variable variableName="limit" value="#[(attributes.queryParams.limit default '50') as Number]" />
+        <salesforce:query config-ref="Salesforce_Config" doc:name="Query Accounts">
+            <salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
 FROM Account
 LIMIT #[vars.limit]]]></salesforce:salesforce-query>
-		</salesforce:query>
-	</flow>
-	<!-- 4) GET /accounts/{id} -->
-	<flow name="get:\accounts\(id):salesforce-system-api-config">
-		<salesforce:query config-ref="Salesforce_Config"
-			doc:name="Query by id or external id">
-			<salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, PersonEmail, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
+        </salesforce:query>
+    </flow>
+    <!-- 4) GET /accounts/{id} -->
+    <flow name="get:\accounts\(id):salesforce-system-api-config">
+        <salesforce:query config-ref="Salesforce_Config" doc:name="Query by id or external id">
+            <salesforce:salesforce-query><![CDATA[SELECT Id, Name, external_id__c, PersonEmail, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate
 FROM Account
 WHERE external_id__c = '#[attributes.uriParams.id]'
    OR Id = '#[attributes.uriParams.id]'
 LIMIT 1]]></salesforce:salesforce-query>
-		</salesforce:query>
-	</flow>
+        </salesforce:query>
+    </flow>
 </mule>
