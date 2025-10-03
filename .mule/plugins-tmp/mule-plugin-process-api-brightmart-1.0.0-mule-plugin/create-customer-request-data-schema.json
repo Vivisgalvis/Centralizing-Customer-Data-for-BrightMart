@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/CustomerProcessIn",
+  "definitions": {
+    "CustomerProcessIn": {
+      "type": "object",
+      "example": {
+        "id": "CUST-003",
+        "firstName": "Carlos",
+        "lastName": "Ram\u00EDrez",
+        "email": "carlos.ramirez@example.com",
+        "phone": "+573001234569",
+        "birthDate": "1985-03-15",
+        "city": "Cali",
+        "state": "Valle",
+        "country": "Colombia"
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

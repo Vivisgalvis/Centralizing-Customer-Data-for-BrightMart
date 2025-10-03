@@ -47,13 +47,6 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
-			<groupId>5b722ad4-d5d8-46fc-a309-f349cfc733e9</groupId>
-			<artifactId>process-api-brightmart</artifactId>
-			<version>1.0.0</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-apikit-module</artifactId>
 			<version>1.11.3</version>
@@ -70,6 +63,13 @@
 			<artifactId>mule-plugin-salesforce-system-api</artifactId>
 			<version>2.0.1</version>
 			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>5b722ad4-d5d8-46fc-a309-f349cfc733e9</groupId>
+			<artifactId>process-api-brightmart</artifactId>
+			<version>1.0.1</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
 		</dependency>
 	</dependencies>
 

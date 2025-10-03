@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    
-    
+<mule xmlns:bright-mart-process-api="http://www.mulesoft.org/schema/mule/bright-mart-process-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/bright-mart-process-api http://www.mulesoft.org/schema/mule/bright-mart-process-api/current/mule-bright-mart-process-api.xsd">
     <flow name="experiencie-api-brightmart-main">
         <http:listener config-ref="experiencie-api-brightmart-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -122,22 +121,49 @@ output application/json
         </error-handler>
     </flow>
     <flow name="get:\customers:experiencie-api-brightmart-config">
-        <logger level="INFO" message="get:\customers:experiencie-api-brightmart-config" />
+        <bright-mart-process-api:get-customers doc:name="Invoke Process API - Get Customers" doc:id="8a590eb3-16aa-461f-ada1-65758acf5bc0" config-ref="BrightMart_Process_API_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="f1714776-d291-4208-a8af-9cf8700341f2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="post:\customers:application\json:experiencie-api-brightmart-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
+    	<!-- 1. Guardamos el request en una variable -->
+		<set-variable value="#[payload]" doc:name="Save Incoming Request" doc:id="9404b527-bdb7-42fe-aee8-6464ae649eff" variableName="req"/>
+		<!-- 2. Invocamos al Process API con el conector -->
+		<bright-mart-process-api:create-customer doc:name="Create customer" doc:id="a4f4c654-00fc-4674-baad-e19c43d65b01" config-ref="BrightMart_Process_API_Config">
+			<bright-mart-process-api:create-customer-request-data ><![CDATA[#[{
+            id: vars.req.id,
+            firstName: vars.req.firstName,
+            lastName: vars.req.lastName,
+            email: vars.req.email,
+            phone: vars.req.phone,
+            birthDate: vars.req.birthDate,
+            city: vars.req.city,
+            state: vars.req.state,
+            country: vars.req.country
+        }]]]></bright-mart-process-api:create-customer-request-data>
+		</bright-mart-process-api:create-customer>
+		 <!-- 3. Transformamos la respuesta para el canal Experience -->
+		<ee:transform doc:name="Transform Message" doc:id="c4e052ee-8a17-42b0-8600-b4da0177c40f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  id: "CUST-004",
-  source: "db",
-  firstName: "María",
-  lastName: "Pérez",
-  email: "maria.perez@example.com"
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+    message: "Customer created successfully",
+    dbStatus: payload.dbStatus,
+    salesforceStatus: payload.salesforceStatus,
+    dbId: payload.dbId,
+    salesforceId: payload.salesforceId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		 
     </flow>
 </mule>

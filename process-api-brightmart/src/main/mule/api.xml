@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:salesforce-system-api="http://www.mulesoft.org/schema/mule/salesforce-system-api" xmlns:data-base-system-api="http://www.mulesoft.org/schema/mule/data-base-system-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
-http://www.mulesoft.org/schema/mule/data-base-system-api http://www.mulesoft.org/schema/mule/data-base-system-api/current/mule-data-base-system-api.xsd
-http://www.mulesoft.org/schema/mule/salesforce-system-api http://www.mulesoft.org/schema/mule/salesforce-system-api/current/mule-salesforce-system-api.xsd">
-    
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:data-base-system-api="http://www.mulesoft.org/schema/mule/data-base-system-api" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce-system-api="http://www.mulesoft.org/schema/mule/salesforce-system-api" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/data-base-system-api http://www.mulesoft.org/schema/mule/data-base-system-api/current/mule-data-base-system-api.xsd http://www.mulesoft.org/schema/mule/salesforce-system-api http://www.mulesoft.org/schema/mule/salesforce-system-api/current/mule-salesforce-system-api.xsd">
     <flow name="process-api-brightmart-main">
         <http:listener config-ref="process-api-brightmart-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -123,13 +120,11 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\customers:application\json:process-api-brightmart-config">
-    
-    <!-- 1. Guardamos el request en una variable -->
-		<set-variable value="#[payload]" doc:name="Save Incoming Request" variableName="req"/>
-		
-	 <!-- 2. Invocamos al BD System API para insertar el cliente -->
-		<data-base-system-api:create-customer doc:name="Create customer" doc:id="48effec7-8773-48f3-86b5-0dabb384c673" config-ref="Data_Base_System_Api_Config">
-			<data-base-system-api:create-customer-request-data ><![CDATA[#[{
+        <!-- 1. Guardamos el request en una variable -->
+        <set-variable value="#[payload]" doc:name="Save Incoming Request" variableName="req" />
+        <!-- 2. Invocamos al BD System API para insertar el cliente -->
+        <data-base-system-api:create-customer doc:name="Create customer" doc:id="48effec7-8773-48f3-86b5-0dabb384c673" config-ref="Data_Base_System_Api_Config">
+            <data-base-system-api:create-customer-request-data><![CDATA[#[{
               externalId: vars.req.id,
               firstName: vars.req.firstName,
               lastName: vars.req.lastName,
@@ -140,24 +135,24 @@ output application/json
               state: vars.req.state,
               country: vars.req.country
             }]]]></data-base-system-api:create-customer-request-data>
-		</data-base-system-api:create-customer>
-	  <!-- Guardamos la respuesta de la BD -->
-		<set-variable value="#[payload]" doc:name="Save DB Response" variableName="dbResponse"/>
-		<!-- 3. Invocamos al Salesforce System API para crear el contacto (ejemplo Contact) -->
-		<salesforce-system-api:create-account doc:name="Create account" doc:id="0f962b13-0825-4119-b0e1-0044e7831f0d" config-ref="Salesforce_System_Api_Config">
-			<salesforce-system-api:create-account-request-data ><![CDATA[#[{
+        </data-base-system-api:create-customer>
+        <!-- Guardamos la respuesta de la BD -->
+        <set-variable value="#[payload]" doc:name="Save DB Response" variableName="dbResponse" />
+        <!-- 3. Invocamos al Salesforce System API para crear el contacto (ejemplo Contact) -->
+        <salesforce-system-api:create-account doc:name="Create account" doc:id="0f962b13-0825-4119-b0e1-0044e7831f0d" config-ref="Salesforce_System_Api_Config">
+            <salesforce-system-api:create-account-request-data><![CDATA[#[{
               firstName: vars.req.firstName,
               lastName: vars.req.lastName,
               email: vars.req.email,
               phone: vars.req.phone
             }]]]></salesforce-system-api:create-account-request-data>
-		</salesforce-system-api:create-account>
-		<!-- Guardamos la respuesta de Salesforce -->
-		<set-variable value="#[payload]" doc:name="Save Salesforce Response" variableName="sfResponse"/>
-		<!-- 4. Construimos la respuesta final -->
-		<ee:transform doc:name="Transform Message" doc:id="ebb77028-fc47-403a-b2fa-ddc958be244e" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[output application/json
+        </salesforce-system-api:create-account>
+        <!-- Guardamos la respuesta de Salesforce -->
+        <set-variable value="#[payload]" doc:name="Save Salesforce Response" variableName="sfResponse" />
+        <!-- 4. Construimos la respuesta final -->
+        <ee:transform doc:name="Transform Message" doc:id="ebb77028-fc47-403a-b2fa-ddc958be244e">
+            <ee:message>
+                <ee:set-payload><![CDATA[output application/json
 ---
 {
   dbStatus: "created",
@@ -165,8 +160,62 @@ output application/json
   dbId: vars.dbResponse.id as String,
   salesforceId: vars.sfResponse.id as String
 }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customers:process-api-brightmart-config">
+    <!-- Llamada al conector de DB System API -->
+        <data-base-system-api:get-customers doc:name="Get customers" doc:id="6c4d499a-d71c-4155-963c-8d9e437e4619" config-ref="Data_Base_System_Api_Config"/>
+	<!-- Transformamos para el modelo del Process API -->
+		<ee:transform doc:name="Transform Message" doc:id="a6508d52-642b-4d99-b8c6-a53cd12aee34" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+ output application/json
+            ---
+            payload map (c) -> {
+              id: c.id,
+              firstName: c.firstName,
+              lastName: c.lastName,
+              email: c.email,
+              phone: c.phone,
+              birthDate: c.birthDate,
+              city: c.city,
+              state: c.state,
+              country: c.country,
+              salesforceId: c.salesforceId,
+              createdAt: c.createdAt,
+              updatedAt: c.updatedAt
+            }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-			
+	
+    </flow>
+    <flow name="get:\customers\(id):process-api-brightmart-config">
+    <!-- Pasamos el id desde la URI -->
+		<set-variable value="#[attributes.uriParams.id]" doc:name="Set Id" doc:id="df934687-db04-436e-ad62-bc9eccf2d41b" variableName="id"/>
+		<!-- Invocamos System-DB API -->
+		<data-base-system-api:get-customer-by-id doc:name="Get customer by id" doc:id="196d0a22-bfed-4478-a5f1-79317598c275" config-ref="Data_Base_System_Api_Config" id="#[vars.id]"/>
+		<!-- Transformamos -->
+		<ee:transform doc:name="Transform Message" doc:id="97632d1b-9542-404d-86c4-a728d8c8e3c7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+            ---
+            {
+              id: payload.id,
+              firstName: payload.firstName,
+              lastName: payload.lastName,
+              email: payload.email,
+              phone: payload.phone,
+              birthDate: payload.birthDate,
+              city: payload.city,
+              state: payload.state,
+              country: payload.country,
+              salesforceId: payload.salesforceId,
+              createdAt: payload.createdAt,
+              updatedAt: payload.updatedAt
+            }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
 </mule>

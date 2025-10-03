@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/CustomerProcessOut",
+  "definitions": {
+    "CustomerProcessOut": {
+      "type": "object",
+      "example": {
+        "dbStatus": "created",
+        "salesforceStatus": "pending",
+        "dbId": "3",
+        "salesforceId": ""
+      },
+      "required": [
+        "dbStatus",
+        "salesforceStatus"
+      ],
+      "properties": {
+        "dbStatus": {
+          "type": "string"
+        },
+        "salesforceStatus": {
+          "type": "string"
+        },
+        "dbId": {
+          "type": "string"
+        },
+        "salesforceId": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
