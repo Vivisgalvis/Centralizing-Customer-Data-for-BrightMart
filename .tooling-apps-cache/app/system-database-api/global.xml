@@ -12,5 +12,37 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="1c535ec7-35a7-4ba4-9aae-671beea43a12" >
 		<db:generic-connection url="${supabase.url}" driverClassName="${supabase.driver_class_name}" user="${supabase.username}" password="${supabase.password}" />
 	</db:config>
+	<error-handler name="globalError_Handler" doc:id="2fea22e2-f12d-4b94-986e-b3aecde42399" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="bd0a28aa-3fe5-407c-a860-ac28de867a60" >
+			<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;if (sizeOf(error.suppressedErrors) &gt; 0)&#10;(error.suppressedErrors[0].errorMessage.attributes.statusCode as Number default 500)&#10;else (error.errorMessage.attributes.statusCode as Number default 500)]" doc:name="vars.httpStatus" doc:id="3e18fcca-0419-4cad-a15b-78291765f665" variableName="httpStatus"/>
+			<ee:transform doc:name="Set Error Message" doc:id="dc519f0f-29dc-4808-8b72-418d896e0fc5" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if (sizeOf(error.suppressedErrors) > 0)
+	(error.suppressedErrors[0].errorMessage.payload as Object default
+	{
+		"code": vars.httpStatus as Number,
+		"message": error.suppressedErrors[0].description default null,
+		"x-correlation-id": correlationId,
+		"timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+		"details": error.suppressedErrors[0].detailedDescription default null
+	}	
+	)
+else (error.errorMessage.payload as Object default
+	{
+		"code": vars.httpStatus as Number,
+		"message": error.description default null,
+		"x-correlation-id": correlationId,
+		"timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+		"details": error.detailedDescription default null
+	}
+)
+ ]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
 
 </mule>

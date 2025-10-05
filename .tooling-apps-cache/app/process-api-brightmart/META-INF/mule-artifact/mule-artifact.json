@@ -15,6 +15,7 @@
       "exportedPackages": [],
       "exportedResources": [
         "api.xml",
+        "application-types.xml",
         "global.xml",
         "log4j2.xml",
         "properties/dev-config.yaml"

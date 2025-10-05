@@ -16,6 +16,7 @@
       "exportedResources": [
         "api/salesforce-system-api.raml",
         "api.xml",
+        "application-types.xml",
         "global.xml",
         "log4j2.xml",
         "mule-artifact.json",

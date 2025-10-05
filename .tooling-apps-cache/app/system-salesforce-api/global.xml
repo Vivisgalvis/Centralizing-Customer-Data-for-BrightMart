@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
-http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
 	
 	<http:listener-config name="salesforce-system-api-httpListenerConfig">
         <http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.timeout}"/>
@@ -18,5 +19,38 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="5fdb89e7-3381-4c20-9b75-67b2dcea0290" >
 		<salesforce:basic-connection username="${salesforce.username}" password="${salesforce.password}" />
 	</salesforce:sfdc-config>
+	<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="576851ce-e881-4551-a2e0-260e07cdb475" flowRef="salesforce-system-api-main" />
+	<error-handler name="globalError_Handler" doc:id="af15245b-a746-4872-bbed-4c2562644910" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fa7436bc-5f8a-4a01-8602-c43ebeeb00b9" >
+			<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;if (sizeOf(error.suppressedErrors) &gt; 0)&#10;(error.suppressedErrors[0].errorMessage.attributes.statusCode as Number default 500)&#10;else (error.errorMessage.attributes.statusCode as Number default 500)]" doc:name="vars.httpStatus" doc:id="7fb1cb7d-4461-4ec0-91f4-af27efd2a72b" variableName="httpStatus"/>
+			<ee:transform doc:name="Set Error Message" doc:id="3d2f542a-862a-4942-b5f9-e23ca1381613" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if (sizeOf(error.suppressedErrors) > 0)
+	(error.suppressedErrors[0].errorMessage.payload as Object default
+	{
+		"code": vars.httpStatus as Number,
+		"message": error.suppressedErrors[0].description default null,
+		"x-correlation-id": correlationId,
+		"timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+		"details": error.suppressedErrors[0].detailedDescription default null
+	}	
+	)
+else (error.errorMessage.payload as Object default
+	{
+		"code": vars.httpStatus as Number,
+		"message": error.description default null,
+		"x-correlation-id": correlationId,
+		"timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+		"details": error.detailedDescription default null
+	}
+)
+ ]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
 	
 </mule>

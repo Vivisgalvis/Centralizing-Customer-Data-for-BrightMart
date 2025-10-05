@@ -3,6 +3,5 @@
   "javaSpecificationVersions": [
     "17"
   ],
-  "configs": ["properties/dev-config.yaml"], 
-  "secureProperties": ["salesforce.username", "salesforce.password", "salesforce.securityToken"]
+  "configs": ["properties/dev-config.yaml"]
 }
