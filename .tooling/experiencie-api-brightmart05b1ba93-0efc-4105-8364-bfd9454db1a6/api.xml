@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:bright-mart-experience-api="http://www.mulesoft.org/schema/mule/bright-mart-experience-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    
+    <flow name="experiencie-api-brigthmart-main">
+        <http:listener config-ref="experiencie-api-brightmart-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="experiencie-api-brigthmart-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform doc:name="400 - BAD REQUEST">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 400,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="404 - NOT FOUND">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 404,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform doc:name="405 - METHOD NOT ALLOWED">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 405,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform doc:name="406 - NOT ACCEPTABLE">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 406,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[406]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform doc:name="415 - UNSUPPORTED MEDIA TYPE">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 415,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[415]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform doc:name="501 - NOT IMPLEMENTED">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 501,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[501]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="experiencie-api-brigthmart-console">
+        <http:listener config-ref="experiencie-api-brightmart-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="experiencie-api-brigthmart-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="404 - NOT FOUND">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "code": 404,
+    "message": error.description default null,
+    "x-correlation-id": correlationId,
+    "timestamp": ((now() >> "UTC") as DateTime as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}),
+    "details": error.detailedDescription default null
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\customers:experiencie-api-brigthmart-config">
+       <bright-mart-process-api:get-customers doc:name="Invoke Process API - Get Customers" config-ref="BrightMart_Process_API_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="6837d982-5c07-45b0-828b-58068fba8b00" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+    <flow name="post:\customers:application\json:experiencie-api-brigthmart-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  id: "CUST-004",
+  source: "db",
+  firstName: "María",
+  lastName: "Pérez",
+  email: "maria.perez@example.com"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

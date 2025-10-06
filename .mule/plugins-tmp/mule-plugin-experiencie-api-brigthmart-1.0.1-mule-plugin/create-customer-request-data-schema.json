@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/CustomerExpIn",
+  "definitions": {
+    "CustomerExpIn": {
+      "type": "object",
+      "example": {
+        "id": "CUST-004",
+        "firstName": "Mar\u00EDa",
+        "lastName": "P\u00E9rez",
+        "email": "maria.perez@example.com",
+        "phone": "+573001234570",
+        "birthDate": "1992-10-12",
+        "city": "Cartagena",
+        "state": "Bol\u00EDvar",
+        "country": "Colombia"
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

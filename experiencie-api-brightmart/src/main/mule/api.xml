@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:bright-mart-process-api="http://www.mulesoft.org/schema/mule/bright-mart-process-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
-http://www.mulesoft.org/schema/mule/bright-mart-process-api http://www.mulesoft.org/schema/mule/bright-mart-process-api/current/mule-bright-mart-process-api.xsd">
-    <flow name="experiencie-api-brightmart-main">
+<mule xmlns:bright-mart-experience-api="http://www.mulesoft.org/schema/mule/bright-mart-experience-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/bright-mart-experience-api http://www.mulesoft.org/schema/mule/bright-mart-experience-api/current/mule-bright-mart-experience-api.xsd">
+    
+    <flow name="experiencie-api-brigthmart-main">
         <http:listener config-ref="experiencie-api-brightmart-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
@@ -11,7 +12,7 @@ http://www.mulesoft.org/schema/mule/bright-mart-process-api http://www.mulesoft.
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response>
         </http:listener>
-        <apikit:router config-ref="experiencie-api-brightmart-config" />
+        <apikit:router config-ref="experiencie-api-brigthmart-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
                 <ee:transform doc:name="400 - BAD REQUEST">
@@ -129,7 +130,7 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="experiencie-api-brightmart-console">
+    <flow name="experiencie-api-brigthmart-console">
         <http:listener config-ref="experiencie-api-brightmart-httpListenerConfig" path="/console/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
@@ -139,7 +140,7 @@ output application/json
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response>
         </http:listener>
-        <apikit:console config-ref="experiencie-api-brightmart-config" />
+        <apikit:console config-ref="experiencie-api-brigthmart-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:NOT_FOUND">
                 <ee:transform doc:name="404 - NOT FOUND">
@@ -162,9 +163,9 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="get:\customers:experiencie-api-brightmart-config">
-        <bright-mart-process-api:get-customers doc:name="Invoke Process API - Get Customers" doc:id="8a590eb3-16aa-461f-ada1-65758acf5bc0" config-ref="BrightMart_Process_API_Config"/>
-		<ee:transform doc:name="Transform Message" doc:id="f1714776-d291-4208-a8af-9cf8700341f2" >
+	<flow name="get:\customers:experiencie-api-brigthmart-config">
+		<bright-mart-experience-api:get-customers doc:name="Invoke Process API - Get Customers" doc:id="5cd326f1-a71f-42e9-bf0b-8e99d0e0b1d9" config-ref="BrightMart_Experience_API_Config" x-customers-source='"system-salesforce-api"'/>
+		<ee:transform doc:name="Transform Message" doc:id="fe461f2a-8e6f-4292-b59b-d030826c0a24" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/java
@@ -173,13 +174,12 @@ output application/java
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-    </flow>
-    <flow name="post:\customers:application\json:experiencie-api-brightmart-config">
-    	<!-- 1. Guardamos el request en una variable -->
-		<set-variable value="#[payload]" doc:name="Save Incoming Request" doc:id="9404b527-bdb7-42fe-aee8-6464ae649eff" variableName="req"/>
-		<!-- 2. Invocamos al Process API con el conector -->
-		<bright-mart-process-api:create-customer doc:name="Create customer" doc:id="a4f4c654-00fc-4674-baad-e19c43d65b01" config-ref="BrightMart_Process_API_Config">
-			<bright-mart-process-api:create-customer-request-data ><![CDATA[#[{
+			
+	</flow>
+    <flow name="post:\customers:application\json:experiencie-api-brigthmart-config">
+		<set-variable value="#[payload]" doc:name="Save Incoming Request" doc:id="90a9b57e-c3ef-40d6-b48e-b24079525a4c" variableName="req"/>
+		<bright-mart-experience-api:create-customer doc:name="Create customer" doc:id="6adfb6a2-892a-4dad-893b-bf8e9a67edf7" config-ref="BrightMart_Experience_API_Config">
+			<bright-mart-experience-api:create-customer-request-data ><![CDATA[#[{
             id: vars.req.id,
             firstName: vars.req.firstName,
             lastName: vars.req.lastName,
@@ -189,10 +189,9 @@ output application/java
             city: vars.req.city,
             state: vars.req.state,
             country: vars.req.country
-        }]]]></bright-mart-process-api:create-customer-request-data>
-		</bright-mart-process-api:create-customer>
-		 <!-- 3. Transformamos la respuesta para el canal Experience -->
-		<ee:transform doc:name="Transform Message" doc:id="c4e052ee-8a17-42b0-8600-b4da0177c40f" >
+        }]]]></bright-mart-experience-api:create-customer-request-data>
+		</bright-mart-experience-api:create-customer>
+		<ee:transform doc:name="Transform Message" doc:id="a872e337-b735-4fb2-81e9-6496b80ff5d1" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -206,6 +205,5 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		 
     </flow>
 </mule>

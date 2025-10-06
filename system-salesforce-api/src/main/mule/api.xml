@@ -162,7 +162,7 @@ output application/json
         <logger level="INFO" doc:name="Log request" message="POST /accounts payload: #[payload]" />
         <!-- Guardar el externalId en variable -->
         <set-variable variableName="externalId" value="#[payload.externalId default payload.id]" />
-        <set-variable value="#[payload]" doc:name="Set Variable" doc:id="109280e8-57b7-486f-9056-ddf14a009294" variableName="originalPayload"/>
+        <set-variable value="#[payload]" doc:name="Set Variable" doc:id="109280e8-57b7-486f-9056-ddf14a009294" variableName="originalPayload" />
         <!-- Mapear payload hacia Salesforce -->
         <ee:transform doc:name="Map to SF payload">
             <ee:message>
@@ -179,9 +179,7 @@ output application/java
 }]]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-        
-        
-		<logger level="INFO" doc:name="Log mapped SF payload" message="#[payload]" />
+        <logger level="INFO" doc:name="Log mapped SF payload" message="#[payload]" />
         <!-- Upsert en Salesforce -->
         <salesforce:upsert config-ref="Salesforce_Config" objectType="Account" externalIdFieldName="${salesforce.externalIdField}" doc:name="SF Upsert Account" />
         <!-- Transformar el resultado del Upsert -->
@@ -272,15 +270,15 @@ LIMIT 1]]></salesforce:salesforce-query>
         </choice>
     </flow>
     <!-- 3) GET /accounts -->
-	<flow name="get:\accounts:salesforce-system-api-config">
-        <set-variable variableName="limit" value="#[(attributes.queryParams.limit default '50') as Number]" doc:name="Set limit"/>
-        <set-variable value="#['SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate FROM Account LIMIT ' ++ vars.limit]" doc:name="Build SOQL Query" doc:id="992a2818-4612-41ff-8c71-cee42ed94e4d" variableName="query"/>
-		<salesforce:query config-ref="Salesforce_Config" doc:name="Query Accounts">
+    <flow name="get:\accounts:salesforce-system-api-config">
+        <set-variable variableName="limit" value="#[(attributes.queryParams.limit default '50') as Number]" doc:name="Set limit" />
+        <set-variable value="#['SELECT Id, Name, external_id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate FROM Account LIMIT ' ++ vars.limit]" doc:name="Build SOQL Query" doc:id="992a2818-4612-41ff-8c71-cee42ed94e4d" variableName="query" />
+        <salesforce:query config-ref="Salesforce_Config" doc:name="Query Accounts">
             <salesforce:salesforce-query><![CDATA[#[vars.query]]]></salesforce:salesforce-query>
         </salesforce:query>
-		<ee:transform doc:name="Transform to JSON" doc:id="90e82ae7-78f7-492c-98af-1ba63498ec5d">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
+        <ee:transform doc:name="Transform to JSON" doc:id="90e82ae7-78f7-492c-98af-1ba63498ec5d">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map (acc) -> {
@@ -294,31 +292,29 @@ payload map (acc) -> {
     createdDate: acc.CreatedDate,
     lastModifiedDate: acc.LastModifiedDate
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+            </ee:message>
+        </ee:transform>
     </flow>
     <!-- 4) GET /accounts/{externalId} -->
     <flow name="get:\accounts\(id):salesforce-system-api-config">
-        <set-variable value="#[attributes.uriParams.Id]" doc:name="Set External Id" doc:id="787890ef-697a-4c0e-bf87-0b94cfb11170" variableName="externalId"/>
-		<logger level="INFO" doc:name="Logger" doc:id="e5b5d835-cbc6-4347-abb2-234cc52b1cbe" message="#[attributes]"/>
-		<set-variable variableName="query"
-              value="#['SELECT Id, Name, External_Id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate FROM Account WHERE External_Id__c = \'' ++ (vars.externalId default '') ++ '\'']"
-              doc:name="Build SOQL Query"/>
-		<salesforce:query config-ref="Salesforce_Config" doc:name="Query by id or external id">
+        <set-variable value="#[attributes.uriParams.Id]" doc:name="Set External Id" doc:id="787890ef-697a-4c0e-bf87-0b94cfb11170" variableName="externalId" />
+        <logger level="INFO" doc:name="Logger" doc:id="e5b5d835-cbc6-4347-abb2-234cc52b1cbe" message="#[attributes]" />
+        <set-variable variableName="query" value="#['SELECT Id, Name, External_Id__c, Phone, BillingCity, BillingState, BillingCountry, CreatedDate, LastModifiedDate FROM Account WHERE External_Id__c = \'' ++ (vars.externalId default '') ++ '\'']" doc:name="Build SOQL Query" />
+        <salesforce:query config-ref="Salesforce_Config" doc:name="Query by id or external id">
             <salesforce:salesforce-query><![CDATA[#[vars.query]]]></salesforce:salesforce-query>
         </salesforce:query>
         <choice doc:name="Check if Found">
-        <when expression="#[isEmpty(payload)]">
-            <set-payload value='{"message": "Account not found"}' mimeType="application/json"/>
-            <set-variable variableName="httpStatus" value="404"/>
-        </when>
-        <otherwise>
-            <set-variable variableName="httpStatus" value="200"/>
-        </otherwise>
-    	</choice>
-		<ee:transform doc:name="Transform to JSON" doc:id="dab9eaa2-02b0-4af7-9ce7-e2087e4a73de" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+            <when expression="#[isEmpty(payload)]">
+                <set-payload value="{&quot;message&quot;: &quot;Account not found&quot;}" mimeType="application/json" />
+                <set-variable variableName="httpStatus" value="404" />
+            </when>
+            <otherwise>
+                <set-variable variableName="httpStatus" value="200" />
+            </otherwise>
+        </choice>
+        <ee:transform doc:name="Transform to JSON" doc:id="dab9eaa2-02b0-4af7-9ce7-e2087e4a73de">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map (acc) -> {
@@ -332,9 +328,8 @@ payload map (acc) -> {
     createdDate: acc.CreatedDate,
     lastModifiedDate: acc.LastModifiedDate
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<set-variable value="#[vars.httpStatus default 200]" doc:name="Set Variable" doc:id="b46e5cb6-e2de-4abc-a3f3-80762c3c38dc" variableName="httpStatus"/>
-    	
+            </ee:message>
+        </ee:transform>
+        <set-variable value="#[vars.httpStatus default 200]" doc:name="Set Variable" doc:id="b46e5cb6-e2de-4abc-a3f3-80762c3c38dc" variableName="httpStatus" />
     </flow>
 </mule>

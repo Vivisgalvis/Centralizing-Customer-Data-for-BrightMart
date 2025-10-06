@@ -1,0 +1,67 @@
+#%RAML 1.0
+title: BrightMart Experience API
+version: v1
+baseUri: /api/customers
+mediaType: application/json
+
+types:
+  CustomerExpIn:
+    type: object
+    properties:
+      id: string
+      firstName: string
+      lastName: string
+      email: string
+      phone?: string
+      birthDate?: date-only
+      city?: string
+      state?: string
+      country?: string
+    example:
+      id: "CUST-004"
+      firstName: "María"
+      lastName: "Pérez"
+      email: "maria.perez@example.com"
+      phone: "+573001234570"
+      birthDate: 1992-10-12
+      city: "Cartagena"
+      state: "Bolívar"
+      country: "Colombia"
+
+  CustomerExpOut:
+    type: object
+    properties:
+      id: string
+      source: string
+      firstName: string
+      lastName: string
+      email: string
+    example:
+      id: "CUST-004"
+      source: "db"
+      firstName: "María"
+      lastName: "Pérez"
+      email: "maria.perez@example.com"
+
+/customers:
+  get:
+    description: List customers. Uses header `X-Customers-Source` = `db` or `sf`.
+    headers:
+      X-Customers-Source:
+        type: string
+        example: "db"
+    responses:
+      200:
+        body:
+          application/json:
+            type: CustomerExpOut[]
+  post:
+    description: Create a customer through process API
+    body:
+      application/json:
+        type: CustomerExpIn
+    responses:
+      201:
+        body:
+          application/json:
+            type: CustomerExpOut

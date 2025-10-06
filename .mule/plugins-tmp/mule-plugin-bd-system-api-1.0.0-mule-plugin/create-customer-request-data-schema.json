@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/CustomerDBIn",
+  "definitions": {
+    "CustomerDBIn": {
+      "type": "object",
+      "example": {
+        "externalId": "CUST-002",
+        "firstName": "Luis",
+        "lastName": "Mart\u00EDnez",
+        "email": "luis.martinez@example.com",
+        "phone": "+573001234568",
+        "birthDate": "1988-02-20",
+        "city": "Medell\u00EDn",
+        "state": "Antioquia",
+        "country": "Colombia"
+      },
+      "required": [
+        "externalId",
+        "firstName",
+        "lastName"
+      ],
+      "properties": {
+        "externalId": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

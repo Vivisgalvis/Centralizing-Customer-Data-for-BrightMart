@@ -53,15 +53,15 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
-			<groupId>5b722ad4-d5d8-46fc-a309-f349cfc733e9</groupId>
-			<artifactId>experiencie-api-brightmart</artifactId>
-			<version>1.0.0</version>
+			<groupId>e8f87cdd-5727-4545-9258-3d76ee0ffa77</groupId>
+			<artifactId>experiencie-api-brigthmart</artifactId>
+			<version>1.0.1</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
 		<dependency>
-			<groupId>5b722ad4-d5d8-46fc-a309-f349cfc733e9</groupId>
-			<artifactId>mule-plugin-process-api-brightmart</artifactId>
+			<groupId>e8f87cdd-5727-4545-9258-3d76ee0ffa77</groupId>
+			<artifactId>mule-plugin-experiencie-api-brigthmart</artifactId>
 			<version>1.0.1</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>

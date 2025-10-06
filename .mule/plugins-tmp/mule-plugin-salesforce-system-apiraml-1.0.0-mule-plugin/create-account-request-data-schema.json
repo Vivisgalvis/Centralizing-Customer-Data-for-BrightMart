@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/AccountIn",
+  "definitions": {
+    "AccountIn": {
+      "type": "object",
+      "example": {
+        "externalId": "CUST-001",
+        "firstName": "Ana",
+        "lastName": "G\u00F3mez",
+        "phone": "+573001234567",
+        "birthDate": "1990-05-01",
+        "city": "Bogot\u00E1",
+        "state": "Cundinamarca",
+        "country": "Colombia"
+      },
+      "required": [
+        "externalId",
+        "firstName",
+        "lastName"
+      ],
+      "properties": {
+        "externalId": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
