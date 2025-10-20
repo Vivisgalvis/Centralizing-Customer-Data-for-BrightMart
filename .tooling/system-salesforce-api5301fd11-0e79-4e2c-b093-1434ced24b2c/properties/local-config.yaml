@@ -1,0 +1,15 @@
+api:
+  id: "20548368"
+  
+http:
+  host: "0.0.0.0"
+  port: "8085"
+  timeout: "30000"
+  
+salesforce:
+  url: "https://login.salesforce.com" 
+  timeout: "30000"
+  username: "viviana.galvis388@agentforce.com"
+  password: "Alejo1Anto2YBOeo6qPGLnyqW8AbF2C9bB6D"
+  securityToken: ""
+  externalIdField: "External_Id__c"

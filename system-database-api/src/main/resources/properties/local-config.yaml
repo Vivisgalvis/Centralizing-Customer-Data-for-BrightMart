@@ -1,0 +1,13 @@
+api:
+  id: "20548372"
+
+http:
+  host: "0.0.0.0"
+  port: "8082"
+  timeout: "30000"
+
+supabase:
+  url: "jdbc:postgresql://aws-1-us-east-2.pooler.supabase.com:5432/postgres?sslmode=require"
+  driver_class_name: "org.postgresql.Driver"
+  username: "${supabase.username}"
+  password: "${supabase.password}"

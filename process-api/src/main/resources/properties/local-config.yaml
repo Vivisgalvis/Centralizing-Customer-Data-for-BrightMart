@@ -1,0 +1,21 @@
+api:
+  id: "20551087"
+
+http:
+  host: "0.0.0.0"
+  port: "8083"
+  timeout: "30000"
+
+systembd:
+  protocol: "HTTPS"
+  host: "0.0.0.0"
+  port: "8082"
+  basepath: "/api"
+  timeout: "30000"
+  
+systemsf:
+  protocol: "HTTPS"
+  host: "0.0.0.0"
+  port: "8081"
+  basepath: "/api"
+  timeout: "30000"

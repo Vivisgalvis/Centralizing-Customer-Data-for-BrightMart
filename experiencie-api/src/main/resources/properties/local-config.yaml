@@ -1,0 +1,14 @@
+api:
+  id: "20548384"
+
+http:
+  host: "0.0.0.0"
+  port: "8084"
+  timeout: "30000"
+
+process:
+  protocol: "HTTP"
+  host: "0.0.0.0"
+  port: "8083"
+  basepath: "/api"
+  timeout: "30000"
